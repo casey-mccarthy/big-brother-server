@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}{{ laptop.hostname }} - Device Details{% endblock %}
+
+{% block content %}
+<a href="/" class="back-link">&larr; Back to all devices</a>
+
+<div class="card">
+    <h2>Device Information</h2>
+    <div class="info-grid">
+        <div class="info-item">
+            <label>Hostname</label>
+            <span>{{ laptop.hostname }}</span>
+        </div>
+        <div class="info-item">
+            <label>Serial Number</label>
+            <span>{{ laptop.laptop_serial }}</span>
+        </div>
+        <div class="info-item">
+            <label>IP Address</label>
+            <span>{{ laptop.ip_address }}</span>
+        </div>
+        <div class="info-item">
+            <label>Logged In User</label>
+            <span>{{ laptop.logged_in_user.as_deref().unwrap_or("-") }}</span>
+        </div>
+        <div class="info-item">
+            <label>Last Seen (UTC)</label>
+            <span>{{ laptop.last_seen_utc }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Drives</h2>
+    {% if drives.is_empty() %}
+    <p class="no-data">No drive information available</p>
+    {% else %}
+    <ul class="drive-list">
+        {% for drive in drives %}
+        <li>
+            <strong>{{ drive.device_id }}</strong> - {{ drive.model }}
+            {% match drive.serial_number %}
+            {% when Some(serial) %}
+            <br><small>Serial: {{ serial }}</small>
+            {% when None %}
+            {% endmatch %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Check-in History ({{ checkins.len() }})</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp (UTC)</th>
+                <th>Hostname</th>
+                <th>IP Address</th>
+                <th>User</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for checkin in checkins %}
+            <tr>
+                <td class="timestamp">{{ checkin.timestamp_utc }}</td>
+                <td>{{ checkin.hostname }}</td>
+                <td>{{ checkin.ip_address }}</td>
+                <td>{{ checkin.logged_in_user.as_deref().unwrap_or("-") }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="no-data">No check-in history</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory - All Devices{% endblock %}
+
+{% block content %}
+<h2 id="device-count" style="margin-bottom: 15px;">All Devices ({{ laptops.len() }})</h2>
+
+<div class="search-container">
+    <input type="text" id="search" class="search-input" placeholder="Search all fields...">
+</div>
+
+<table id="devices-table">
+    <thead>
+        <tr>
+            <th>Hostname</th>
+            <th>IP Address</th>
+            <th>Logged In User</th>
+            <th>Last Seen (UTC)</th>
+            <th>Serial</th>
+            <th>Drive Serials</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for laptop in laptops %}
+        <tr class="clickable" onclick="window.location='/device/{{ laptop.laptop_serial }}'">
+            <td>{{ laptop.hostname }}</td>
+            <td>{{ laptop.ip_address }}</td>
+            <td>{{ laptop.logged_in_user.as_deref().unwrap_or("-") }}</td>
+            <td class="timestamp">{{ laptop.last_seen_utc }}</td>
+            <td>{{ laptop.laptop_serial }}</td>
+            <td class="drive-serials">{{ laptop.drive_serials_display|safe }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" class="no-data">No devices found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+(function() {
+    const searchInput = document.getElementById('search');
+    const table = document.getElementById('devices-table');
+    const tbody = table.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr.clickable');
+    const countEl = document.getElementById('device-count');
+    const totalCount = {{ laptops.len() }};
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        rows.forEach(function(row) {
+            const text = row.textContent.toLowerCase();
+            if (query === '' || text.includes(query)) {
+                row.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+
+        if (query === '') {
+            countEl.textContent = 'All Devices (' + totalCount + ')';
+        } else {
+            countEl.textContent = 'Showing ' + visibleCount + ' of ' + totalCount + ' devices';
+        }
+    });
+})();
+</script>
+{% endblock %}
