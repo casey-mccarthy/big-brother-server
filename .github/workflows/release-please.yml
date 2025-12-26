@@ -66,7 +66,51 @@ jobs:
 
           New-Item -ItemType Directory -Force -Path $releaseDir
           Copy-Item "target/release/inventory-server.exe" $releaseDir
-          Copy-Item "README.md" "$releaseDir/README.txt"
+
+          # Write deployment-specific README (not the full repo README)
+          @"
+# Inventory Server
+
+## Configuration
+
+Place a ``config.toml`` file in the same directory as the executable.
+If not present, a template will be auto-generated on first run.
+
+### config.toml Options
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| bind | 0.0.0.0:8443 | Server bind address (IP:port) |
+| db_path | (exe dir)/inventory.db | SQLite database path |
+| tls_cert | - | Path to PEM certificate (enables TLS) |
+| tls_key | - | Path to PEM private key (enables TLS) |
+| debug | false | Log all incoming check-ins |
+
+Example config.toml:
+``````
+bind = "0.0.0.0:8443"
+db_path = "C:\\ProgramData\\InventoryServer\\inventory.db"
+# tls_cert = "cert.pem"
+# tls_key = "key.pem"
+debug = false
+``````
+
+Environment variables override config file: INVENTORY_BIND, INVENTORY_DB_PATH, INVENTORY_TLS_CERT, INVENTORY_TLS_KEY, INVENTORY_DEBUG
+
+## Running
+
+### Test Mode
+Run with debug logging enabled (set in config.toml):
+``````
+debug = true
+``````
+Then start the server - all incoming check-ins will be logged.
+
+### Production
+1. Create config.toml with production settings (TLS recommended)
+2. Run: .\inventory-server.exe
+3. Access dashboard at configured bind address
+"@ | Out-File -FilePath "$releaseDir/README.txt" -Encoding UTF8
 
           Compress-Archive -Path "$releaseDir/*" -DestinationPath "$releaseName.zip"
 
