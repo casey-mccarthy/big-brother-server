@@ -33,8 +33,9 @@ pub fn open_and_init(db_path: &str) -> Result<Connection> {
 
         CREATE INDEX IF NOT EXISTS idx_checkins_laptop_serial ON checkins(laptop_serial);
         CREATE INDEX IF NOT EXISTS idx_checkins_timestamp ON checkins(timestamp_utc);
-        "#
-    ).context("db init batch failed")?;
+        "#,
+    )
+    .context("db init batch failed")?;
 
     Ok(conn)
 }

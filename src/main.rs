@@ -38,7 +38,10 @@ async fn main() -> Result<()> {
         .parse()
         .context("parse bind address")?;
 
-    let db_path = match std::env::var("INVENTORY_DB_PATH").ok().or(cfg.db_path.clone()) {
+    let db_path = match std::env::var("INVENTORY_DB_PATH")
+        .ok()
+        .or(cfg.db_path.clone())
+    {
         Some(path) => path,
         None => config::default_db_path()?,
     };
@@ -64,7 +67,10 @@ async fn main() -> Result<()> {
     // Initialize schema + WAL
     let _ = db::open_and_init(&db_path)?;
 
-    let state = Arc::new(AppState { db_path, debug_mode });
+    let state = Arc::new(AppState {
+        db_path,
+        debug_mode,
+    });
 
     let app = Router::new()
         .route("/", get(handlers::index))

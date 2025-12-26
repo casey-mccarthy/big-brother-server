@@ -160,7 +160,10 @@ async fn test_device_shows_drive_details() {
     let body_str = String::from_utf8_lossy(&body);
 
     assert!(body_str.contains("WD Blue 1TB"), "Should show drive model");
-    assert!(body_str.contains("WD-SERIAL-XYZ"), "Should show drive serial");
+    assert!(
+        body_str.contains("WD-SERIAL-XYZ"),
+        "Should show drive serial"
+    );
 }
 
 #[tokio::test]
@@ -208,8 +211,14 @@ async fn test_device_shows_checkin_history() {
     let body_str = String::from_utf8_lossy(&body);
 
     // Both historical entries should appear
-    assert!(body_str.contains("2024-01-10"), "Should show old checkin date");
-    assert!(body_str.contains("2024-01-20"), "Should show recent checkin date");
+    assert!(
+        body_str.contains("2024-01-10"),
+        "Should show old checkin date"
+    );
+    assert!(
+        body_str.contains("2024-01-20"),
+        "Should show recent checkin date"
+    );
 }
 
 #[tokio::test]

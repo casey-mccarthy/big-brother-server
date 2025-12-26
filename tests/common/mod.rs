@@ -31,6 +31,7 @@ pub fn setup_test_app() -> (Router, NamedTempFile) {
 }
 
 /// Creates a valid check-in JSON payload for testing.
+#[allow(dead_code)]
 pub fn valid_checkin_json() -> String {
     serde_json::json!({
         "hostname": "TEST-LAPTOP-001",
@@ -52,6 +53,7 @@ pub fn valid_checkin_json() -> String {
 }
 
 /// Creates a check-in JSON with custom values.
+#[allow(dead_code)]
 pub fn checkin_json_with(
     hostname: &str,
     serial: &str,

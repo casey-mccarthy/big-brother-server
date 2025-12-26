@@ -72,8 +72,12 @@ bind = "0.0.0.0:8443"
 debug = false
 "#;
 
-    std::fs::write(config_path, template)
-        .with_context(|| format!("failed to write template config to {}", config_path.display()))?;
+    std::fs::write(config_path, template).with_context(|| {
+        format!(
+            "failed to write template config to {}",
+            config_path.display()
+        )
+    })?;
 
     println!("Generated template config file: {}", config_path.display());
     Ok(())
@@ -116,7 +120,7 @@ mod tests {
         assert_eq!(config.db_path, None);
         assert_eq!(config.tls_cert, None);
         assert_eq!(config.tls_key, None);
-        assert_eq!(config.debug, false);
+        assert!(!config.debug);
     }
 
     #[test]
@@ -129,7 +133,7 @@ mod tests {
         let toml = r#""#;
         let config: Config = toml::from_str(toml).unwrap();
         assert_eq!(config.bind, "0.0.0.0:8443");
-        assert_eq!(config.debug, false);
+        assert!(!config.debug);
     }
 
     #[test]
@@ -146,7 +150,7 @@ mod tests {
         assert_eq!(config.db_path, Some("/tmp/test.db".to_string()));
         assert_eq!(config.tls_cert, Some("/path/to/cert.pem".to_string()));
         assert_eq!(config.tls_key, Some("/path/to/key.pem".to_string()));
-        assert_eq!(config.debug, true);
+        assert!(config.debug);
     }
 
     #[test]
@@ -158,7 +162,7 @@ mod tests {
         let config: Config = toml::from_str(toml).unwrap();
         assert_eq!(config.bind, "192.168.1.1:8080");
         assert_eq!(config.db_path, None);
-        assert_eq!(config.debug, true);
+        assert!(config.debug);
     }
 
     #[test]
