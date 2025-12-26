@@ -128,7 +128,10 @@ async fn test_multiple_checkins_updates_laptop() {
     let laptops = db::get_all_laptops(&conn).unwrap();
 
     assert_eq!(laptops.len(), 1, "Should still have only one laptop entry");
-    assert_eq!(laptops[0].hostname, "hostname-v2", "Hostname should be updated");
+    assert_eq!(
+        laptops[0].hostname, "hostname-v2",
+        "Hostname should be updated"
+    );
     assert_eq!(laptops[0].ip_address, "192.168.1.2", "IP should be updated");
 }
 
