@@ -30,3 +30,4 @@ rustls = { version = "0.23", default-features = false, features = ["ring", "std"
 tempfile = "3"
 tower = { version = "0.5", features = ["util"] }
 hyper = { version = "1", features = ["client", "http1"] }
+http-body-util = "0.1"
