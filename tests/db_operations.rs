@@ -33,7 +33,11 @@ fn test_open_and_init_creates_tables() {
     let journal_mode: String = conn
         .query_row("PRAGMA journal_mode", [], |row| row.get(0))
         .unwrap();
-    assert_eq!(journal_mode.to_lowercase(), "wal", "WAL mode should be enabled");
+    assert_eq!(
+        journal_mode.to_lowercase(),
+        "wal",
+        "WAL mode should be enabled"
+    );
 }
 
 #[test]
@@ -62,7 +66,10 @@ fn test_get_all_laptops_empty_database() {
     let conn = db::open_and_init(db_path).unwrap();
     let laptops = db::get_all_laptops(&conn).expect("Failed to query laptops");
 
-    assert!(laptops.is_empty(), "Empty database should return no laptops");
+    assert!(
+        laptops.is_empty(),
+        "Empty database should return no laptops"
+    );
 }
 
 #[test]
@@ -159,7 +166,10 @@ fn test_get_checkins_by_serial_empty() {
     let conn = db::open_and_init(db_path).unwrap();
     let checkins = db::get_checkins_by_serial(&conn, "UNKNOWN").unwrap();
 
-    assert!(checkins.is_empty(), "Should return empty vec for unknown serial");
+    assert!(
+        checkins.is_empty(),
+        "Should return empty vec for unknown serial"
+    );
 }
 
 #[test]
