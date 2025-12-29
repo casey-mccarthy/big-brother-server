@@ -2,9 +2,11 @@ use askama::Template;
 use axum::{
     extract::{Path, State},
     http::StatusCode,
+    response::IntoResponse,
     Json,
 };
 use rusqlite::params;
+use serde::Serialize;
 use std::sync::Arc;
 use validator::Validate;
 
@@ -14,6 +16,48 @@ use crate::{
     models::{CheckIn, CheckinRow, Drive, IndexLaptopRow, LaptopRow},
     AppState,
 };
+
+// ============== Health Check ==============
+
+#[derive(Serialize)]
+pub struct HealthResponse {
+    pub status: &'static str,
+    pub version: &'static str,
+}
+
+/// GET /health - Basic liveness check
+pub async fn health() -> impl IntoResponse {
+    Json(HealthResponse {
+        status: "ok",
+        version: env!("CARGO_PKG_VERSION"),
+    })
+}
+
+/// GET /ready - Readiness check including database connectivity
+pub async fn ready(
+    State(state): State<Arc<AppState>>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    // Check database connectivity
+    let conn = rusqlite::Connection::open(&state.db_path).map_err(|e| {
+        (
+            StatusCode::SERVICE_UNAVAILABLE,
+            format!("database unavailable: {e}"),
+        )
+    })?;
+
+    // Verify we can query the database
+    conn.query_row("SELECT 1", [], |_| Ok(())).map_err(|e| {
+        (
+            StatusCode::SERVICE_UNAVAILABLE,
+            format!("database query failed: {e}"),
+        )
+    })?;
+
+    Ok(Json(HealthResponse {
+        status: "ok",
+        version: env!("CARGO_PKG_VERSION"),
+    }))
+}
 
 // ============== Template Structs ==============
 
@@ -34,12 +78,18 @@ pub struct DeviceTemplate {
 // ============== Web Handlers ==============
 
 /// GET / - Display all laptops
-pub async fn index(State(state): State<Arc<AppState>>) -> Result<IndexTemplate, (StatusCode, String)> {
+pub async fn index(
+    State(state): State<Arc<AppState>>,
+) -> Result<IndexTemplate, (StatusCode, String)> {
     let conn = rusqlite::Connection::open(&state.db_path)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("db open: {e}")))?;
 
-    let laptop_rows = db::get_all_laptops(&conn)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("query laptops: {e}")))?;
+    let laptop_rows = db::get_all_laptops(&conn).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("query laptops: {e}"),
+        )
+    })?;
 
     // Convert LaptopRow to IndexLaptopRow with parsed drives
     let laptops: Vec<IndexLaptopRow> = laptop_rows
@@ -53,24 +103,17 @@ pub async fn index(State(state): State<Arc<AppState>>) -> Result<IndexTemplate, 
                     d
                 })
                 .collect();
-            let drive_serials_display = {
-                let serials: Vec<&str> = drives
-                    .iter()
-                    .filter_map(|d| d.serial_number.as_deref())
-                    .collect();
-                if serials.is_empty() {
-                    "-".to_string()
-                } else {
-                    serials.join("<br>")
-                }
-            };
+            let drive_serials: Vec<String> = drives
+                .iter()
+                .filter_map(|d| d.serial_number.clone())
+                .collect();
             IndexLaptopRow {
                 laptop_serial: row.laptop_serial,
                 hostname: row.hostname,
                 ip_address: row.ip_address,
                 logged_in_user: row.logged_in_user,
                 last_seen_utc: row.last_seen_utc,
-                drive_serials_display,
+                drive_serials,
             }
         })
         .collect();
@@ -84,7 +127,11 @@ pub async fn device_detail(
     Path(serial): Path<String>,
 ) -> Result<DeviceTemplate, (StatusCode, String)> {
     if state.debug_mode {
-        println!("[DEBUG] device_detail called with serial: {:?} (len={})", serial, serial.len());
+        println!(
+            "[DEBUG] device_detail called with serial: {:?} (len={})",
+            serial,
+            serial.len()
+        );
         println!("[DEBUG] db_path: {}", state.db_path);
     }
 
@@ -96,14 +143,23 @@ pub async fn device_detail(
         if let Ok(laptops) = db::get_all_laptops(&conn) {
             println!("[DEBUG] All laptops in DB:");
             for l in &laptops {
-                println!("[DEBUG]   serial: {:?} (len={})", l.laptop_serial, l.laptop_serial.len());
+                println!(
+                    "[DEBUG]   serial: {:?} (len={})",
+                    l.laptop_serial,
+                    l.laptop_serial.len()
+                );
             }
         }
     }
 
     // Fetch laptop
     let laptop = db::get_laptop_by_serial(&conn, &serial)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("query laptop: {e}")))?
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("query laptop: {e}"),
+            )
+        })?
         .ok_or_else(|| (StatusCode::NOT_FOUND, format!("Device not found: {serial}")))?;
 
     // Parse drives from JSON and clean up device_id (remove \\.\  prefix)
@@ -117,8 +173,12 @@ pub async fn device_detail(
         .collect();
 
     // Fetch check-in history
-    let checkins = db::get_checkins_by_serial(&conn, &serial)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("query checkins: {e}")))?;
+    let checkins = db::get_checkins_by_serial(&conn, &serial).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("query checkins: {e}"),
+        )
+    })?;
 
     Ok(DeviceTemplate {
         laptop,

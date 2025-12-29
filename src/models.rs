@@ -3,11 +3,20 @@ use validator::{Validate, ValidationError};
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct Drive {
-    #[validate(length(min = 1, max = 256), custom(function = "validate_printable_ascii_required"))]
+    #[validate(
+        length(min = 1, max = 256),
+        custom(function = "validate_printable_ascii_required")
+    )]
     pub model: String,
-    #[validate(length(max = 256), custom(function = "validate_printable_ascii_required"))]
+    #[validate(
+        length(max = 256),
+        custom(function = "validate_printable_ascii_required")
+    )]
     pub serial_number: Option<String>,
-    #[validate(length(min = 1, max = 256), custom(function = "validate_printable_ascii_required"))]
+    #[validate(
+        length(min = 1, max = 256),
+        custom(function = "validate_printable_ascii_required")
+    )]
     pub device_id: String,
 }
 
@@ -17,9 +26,15 @@ pub struct CheckIn {
     pub hostname: String,
     #[validate(custom(function = "validate_ip_address"))]
     pub ip_address: String,
-    #[validate(length(max = 512), custom(function = "validate_printable_ascii_required"))]
+    #[validate(
+        length(max = 512),
+        custom(function = "validate_printable_ascii_required")
+    )]
     pub logged_in_user: Option<String>,
-    #[validate(length(min = 1, max = 128), custom(function = "validate_printable_ascii_required"))]
+    #[validate(
+        length(min = 1, max = 128),
+        custom(function = "validate_printable_ascii_required")
+    )]
     pub laptop_serial: String,
     #[validate(length(max = 32), nested)]
     pub drives: Vec<Drive>,
@@ -55,7 +70,7 @@ pub struct IndexLaptopRow {
     pub ip_address: String,
     pub logged_in_user: Option<String>,
     pub last_seen_utc: String,
-    pub drive_serials_display: String,
+    pub drive_serials: Vec<String>,
 }
 
 /// Validates that a string is a valid IPv4 or IPv6 address
@@ -91,8 +106,14 @@ fn validate_hostname(hostname: &str) -> Result<(), ValidationError> {
     let valid = hostname
         .chars()
         .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
-        && hostname.chars().next().map_or(false, |c| c.is_ascii_alphanumeric())
-        && hostname.chars().last().map_or(false, |c| c.is_ascii_alphanumeric());
+        && hostname
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_alphanumeric())
+        && hostname
+            .chars()
+            .last()
+            .is_some_and(|c| c.is_ascii_alphanumeric());
 
     if valid {
         Ok(())
@@ -152,13 +173,11 @@ mod tests {
             ip_address: "192.168.1.100".to_string(),
             logged_in_user: Some("DOMAIN\\user".to_string()),
             laptop_serial: "ABC123XYZ".to_string(),
-            drives: vec![
-                Drive {
-                    model: "Samsung SSD".to_string(),
-                    serial_number: Some("S123456".to_string()),
-                    device_id: "PHYSICALDRIVE0".to_string(),
-                }
-            ],
+            drives: vec![Drive {
+                model: "Samsung SSD".to_string(),
+                serial_number: Some("S123456".to_string()),
+                device_id: "PHYSICALDRIVE0".to_string(),
+            }],
             timestamp_utc: "2025-12-18T10:00:00Z".to_string(),
         };
 
