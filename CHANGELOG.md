@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/casey-mccarthy/big-brother-server/compare/v0.2.0...v0.3.0) (2025-12-30)
+
+
+### Features
+
+* add /lint-and-pr claude command ([0e9c407](https://github.com/casey-mccarthy/big-brother-server/commit/0e9c40706dbe2493efa0bb0271f020a167dabf23))
+
+
+### Bug Fixes
+
+* address linter warnings and formatting issues ([f97dc29](https://github.com/casey-mccarthy/big-brother-server/commit/f97dc295b05047504c640d40a35976992cc85e30))
+
 ## [0.2.0](https://github.com/casey-mccarthy/big-brother-server/compare/v0.1.0...v0.2.0) (2025-12-26)
 
 
