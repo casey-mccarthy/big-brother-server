@@ -28,7 +28,7 @@
             <td>{{ laptop.logged_in_user.as_deref().unwrap_or("-") }}</td>
             <td class="timestamp">{{ laptop.last_seen_utc }}</td>
             <td>{{ laptop.laptop_serial }}</td>
-            <td class="drive-serials">{{ laptop.drive_serials_display|safe }}</td>
+            <td class="drive-serials">{% if laptop.drive_serials.is_empty() %}-{% else %}{% for serial in laptop.drive_serials %}<div>{{ serial }}</div>{% endfor %}{% endif %}</td>
         </tr>
         {% else %}
         <tr>
