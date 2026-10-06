@@ -1,0 +1,19 @@
+{
+  "hostname": "LAPTOP-ABC123",
+  "ip_address": "192.168.1.100",
+  "logged_in_user": "DOMAIN\\jsmith",
+  "laptop_serial": "ABC123XYZ",
+  "drives": [
+    {
+      "model": "Samsung SSD 970 EVO 500GB",
+      "serial_number": "S4EVNX0M123456",
+      "device_id": "\\\\.\\PHYSICALDRIVE0"
+    },
+    {
+      "model": "Generic USB Drive",
+      "serial_number": null,
+      "device_id": "\\\\.\\PHYSICALDRIVE1"
+    }
+  ],
+  "timestamp_utc": "2025-12-18T10:30:00Z"
+}

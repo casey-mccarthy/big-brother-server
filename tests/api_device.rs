@@ -131,9 +131,7 @@ async fn test_device_shows_drive_details() {
     let drives_json = serde_json::json!([{
         "device_id": "\\\\.\\PhysicalDrive0",
         "model": "WD Blue 1TB",
-        "serial_number": "WD-SERIAL-XYZ",
-        "size_bytes": 1000000000000_i64,
-        "media_type": "HDD"
+        "serial_number": "WD-SERIAL-XYZ"
     }])
     .to_string();
 
