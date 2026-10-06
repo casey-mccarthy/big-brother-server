@@ -70,7 +70,7 @@ pub struct IndexLaptopRow {
     pub ip_address: String,
     pub logged_in_user: Option<String>,
     pub last_seen_utc: String,
-    pub drive_serials_display: String,
+    pub drive_serials: Vec<String>,
 }
 
 /// Validates that a string is a valid IPv4 or IPv6 address

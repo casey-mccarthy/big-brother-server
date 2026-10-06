@@ -51,32 +51,15 @@ pub async fn index(
     let laptops: Vec<IndexLaptopRow> = laptop_rows
         .into_iter()
         .map(|row| {
-            let drives: Vec<Drive> = serde_json::from_str::<Vec<Drive>>(&row.drives_json)
-                .unwrap_or_default()
-                .into_iter()
-                .map(|mut d| {
-                    d.device_id = d.device_id.trim_start_matches("\\\\.\\").to_string();
-                    d
-                })
-                .collect();
-            let drive_serials_display = {
-                let serials: Vec<&str> = drives
-                    .iter()
-                    .filter_map(|d| d.serial_number.as_deref())
-                    .collect();
-                if serials.is_empty() {
-                    "-".to_string()
-                } else {
-                    serials.join("<br>")
-                }
-            };
+            let drives: Vec<Drive> = serde_json::from_str(&row.drives_json).unwrap_or_default();
+            let drive_serials = drives.into_iter().filter_map(|d| d.serial_number).collect();
             IndexLaptopRow {
                 laptop_serial: row.laptop_serial,
                 hostname: row.hostname,
                 ip_address: row.ip_address,
                 logged_in_user: row.logged_in_user,
                 last_seen_utc: row.last_seen_utc,
-                drive_serials_display,
+                drive_serials,
             }
         })
         .collect();
