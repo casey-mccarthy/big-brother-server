@@ -30,26 +30,11 @@ pub fn setup_test_app() -> (Router, NamedTempFile) {
     (app, temp_db)
 }
 
-/// Creates a valid check-in JSON payload for testing.
+/// Returns the canonical agent check-in payload shared with the inventory-agent
+/// repository (`tests/fixtures/checkin.json`). See `tests/contract.rs`.
 #[allow(dead_code)]
 pub fn valid_checkin_json() -> String {
-    serde_json::json!({
-        "hostname": "TEST-LAPTOP-001",
-        "laptop_serial": "SN123456789",
-        "ip_address": "192.168.1.100",
-        "logged_in_user": "testuser",
-        "timestamp_utc": "2024-01-15T10:30:00Z",
-        "drives": [
-            {
-                "device_id": "\\\\.\\PhysicalDrive0",
-                "model": "Samsung SSD 970 EVO",
-                "serial_number": "S4EVNX0M123456",
-                "size_bytes": 500107862016_i64,
-                "media_type": "SSD"
-            }
-        ]
-    })
-    .to_string()
+    include_str!("../fixtures/checkin.json").to_string()
 }
 
 /// Creates a check-in JSON with custom values.

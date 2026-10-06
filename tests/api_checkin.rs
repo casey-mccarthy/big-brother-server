@@ -48,8 +48,8 @@ async fn test_checkin_persists_to_laptops_table() {
     let laptops = db::get_all_laptops(&conn).unwrap();
 
     assert_eq!(laptops.len(), 1);
-    assert_eq!(laptops[0].laptop_serial, "SN123456789");
-    assert_eq!(laptops[0].hostname, "TEST-LAPTOP-001");
+    assert_eq!(laptops[0].laptop_serial, "ABC123XYZ");
+    assert_eq!(laptops[0].hostname, "LAPTOP-ABC123");
 }
 
 #[tokio::test]
@@ -71,10 +71,10 @@ async fn test_checkin_persists_to_checkins_table() {
 
     // Verify checkin was recorded
     let conn = rusqlite::Connection::open(db_path).unwrap();
-    let checkins = db::get_checkins_by_serial(&conn, "SN123456789").unwrap();
+    let checkins = db::get_checkins_by_serial(&conn, "ABC123XYZ").unwrap();
 
     assert_eq!(checkins.len(), 1);
-    assert_eq!(checkins[0].hostname, "TEST-LAPTOP-001");
+    assert_eq!(checkins[0].hostname, "LAPTOP-ABC123");
 }
 
 #[tokio::test]
