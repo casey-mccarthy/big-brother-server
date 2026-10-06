@@ -45,6 +45,9 @@ $env:INVENTORY_TLS_KEY="path\to\key.pem"
 - **laptops**: Current state keyed by laptop_serial (UPSERT on conflict)
 - **checkins**: Historical audit trail with auto-increment ID, indexed by laptop_serial and timestamp_utc
 
+### Wire Contract With the Agent
+`tests/fixtures/checkin.json` is the canonical check-in payload and is committed identically to the inventory-agent repository. `tests/contract.rs` asserts the server accepts exactly that JSON; the agent's `tests/contract.rs` asserts it produces exactly that JSON. Change the schema on both sides and update the fixture in both repos.
+
 ### Data Flow
 1. Agent POSTs JSON to /checkin endpoint
 2. Server validates payload (handlers.rs)
@@ -55,7 +58,7 @@ $env:INVENTORY_TLS_KEY="path\to\key.pem"
 ### Configuration
 Environment variables:
 - `INVENTORY_BIND` (default `0.0.0.0:8443`)
-- `INVENTORY_DB_PATH` (default `C:\ProgramData\InventoryServer\inventory.db`)
+- `INVENTORY_DB_PATH` (default `inventory.db` next to the executable)
 - `INVENTORY_TLS_CERT` (optional, path to PEM cert)
 - `INVENTORY_TLS_KEY` (optional, path to PEM key)
 
