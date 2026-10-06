@@ -158,8 +158,14 @@ Content-Type: application/json
 | Code | Description |
 |------|-------------|
 | 200 | Check-in accepted |
-| 400 | Invalid JSON or missing required fields |
+| 400 | Malformed JSON, or a field failed validation (bad IP, bad hostname, non-printable characters, bad timestamp, more than 32 drives) |
+| 415 | `Content-Type` is not `application/json` |
+| 422 | Well-formed JSON that does not match the schema (missing required field, wrong type) |
 | 500 | Database or server error |
+
+Unknown fields are ignored, so an agent may add fields before the server learns about them.
+
+The canonical payload shared with the agent repository is `tests/fixtures/checkin.json`; `tests/contract.rs` asserts the server accepts exactly that JSON.
 
 ## Database Schema
 

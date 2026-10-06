@@ -12,8 +12,13 @@ The Inventory API Server is a compiled Rust service running on Windows Server th
 - Body: see JSON schema below
 - Responses:
   - 200 OK — accepted
-  - 400 Bad Request — invalid JSON or missing required fields
+  - 400 Bad Request — malformed JSON, or a field failed validation
+  - 415 Unsupported Media Type — Content-Type is not application/json
+  - 422 Unprocessable Entity — JSON does not match the schema (missing field, wrong type)
   - 500 Internal Server Error — DB failure or unexpected runtime error
+- Unknown fields are ignored (forward compatibility with newer agents).
+- Timestamps: `timestamp_utc` is RFC 3339; the agent sends whole seconds in UTC with a `Z` suffix
+  (e.g. `2025-12-18T10:30:00Z`) so stored values are fixed-width and sort lexicographically.
 
 ### JSON Schema (informal)
 ```json

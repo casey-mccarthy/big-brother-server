@@ -34,7 +34,7 @@ Environment variables:
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `INVENTORY_BIND` | No | `0.0.0.0:8443` | Server bind address and port |
-| `INVENTORY_DB_PATH` | No | `C:\ProgramData\InventoryServer\inventory.db` | SQLite database path |
+| `INVENTORY_DB_PATH` | No | `inventory.db` next to the executable | SQLite database path |
 | `INVENTORY_TLS_CERT` | No | - | Path to PEM certificate (enables TLS) |
 | `INVENTORY_TLS_KEY` | No | - | Path to PEM private key (enables TLS) |
 
@@ -61,7 +61,9 @@ If you terminate TLS upstream (IIS/nginx), run server on HTTP internally and enf
 ## API Endpoints
 
 ### POST /checkin
-Receives inventory data from agents.
+Receives inventory data from agents. Returns `200` on success, `400` for malformed JSON or a failed validation, `415` for a non-JSON content type, `422` for JSON that does not match the schema, and `500` on a database error.
+
+The canonical request body is `tests/fixtures/checkin.json`, which is also committed to the agent repository. `tests/contract.rs` on both sides keeps the two in sync.
 
 Request body:
 ```json
