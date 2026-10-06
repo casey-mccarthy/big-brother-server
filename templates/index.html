@@ -22,13 +22,13 @@
     </thead>
     <tbody>
         {% for laptop in laptops %}
-        <tr class="clickable" onclick="window.location='/device/{{ laptop.laptop_serial }}'">
+        <tr class="clickable" data-href="/device/{{ laptop.laptop_serial|urlencode_strict }}">
             <td>{{ laptop.hostname }}</td>
             <td>{{ laptop.ip_address }}</td>
             <td>{{ laptop.logged_in_user.as_deref().unwrap_or("-") }}</td>
             <td class="timestamp">{{ laptop.last_seen_utc }}</td>
             <td>{{ laptop.laptop_serial }}</td>
-            <td class="drive-serials">{{ laptop.drive_serials_display|safe }}</td>
+            <td class="drive-serials">{% for serial in laptop.drive_serials %}{{ serial }}{% if !loop.last %}<br>{% endif %}{% else %}-{% endfor %}</td>
         </tr>
         {% else %}
         <tr>
@@ -45,6 +45,12 @@
     const tbody = table.querySelector('tbody');
     const rows = tbody.querySelectorAll('tr.clickable');
     const countEl = document.getElementById('device-count');
+
+    rows.forEach(function(row) {
+        row.addEventListener('click', function() {
+            window.location = row.dataset.href;
+        });
+    });
     const totalCount = {{ laptops.len() }};
 
     searchInput.addEventListener('input', function() {
