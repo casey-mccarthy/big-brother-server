@@ -2,9 +2,11 @@ use askama::Template;
 use axum::{
     extract::{Path, State},
     http::StatusCode,
+    response::IntoResponse,
     Json,
 };
 use rusqlite::params;
+use serde::Serialize;
 use std::sync::Arc;
 use validator::Validate;
 
@@ -14,6 +16,48 @@ use crate::{
     models::{CheckIn, CheckinRow, Drive, IndexLaptopRow, LaptopRow},
     AppState,
 };
+
+// ============== Health Check ==============
+
+#[derive(Serialize)]
+pub struct HealthResponse {
+    pub status: &'static str,
+    pub version: &'static str,
+}
+
+/// GET /health - Basic liveness check
+pub async fn health() -> impl IntoResponse {
+    Json(HealthResponse {
+        status: "ok",
+        version: env!("CARGO_PKG_VERSION"),
+    })
+}
+
+/// GET /ready - Readiness check including database connectivity
+pub async fn ready(
+    State(state): State<Arc<AppState>>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    // Check database connectivity
+    let conn = rusqlite::Connection::open(&state.db_path).map_err(|e| {
+        (
+            StatusCode::SERVICE_UNAVAILABLE,
+            format!("database unavailable: {e}"),
+        )
+    })?;
+
+    // Verify we can query the database
+    conn.query_row("SELECT 1", [], |_| Ok(())).map_err(|e| {
+        (
+            StatusCode::SERVICE_UNAVAILABLE,
+            format!("database query failed: {e}"),
+        )
+    })?;
+
+    Ok(Json(HealthResponse {
+        status: "ok",
+        version: env!("CARGO_PKG_VERSION"),
+    }))
+}
 
 // ============== Template Structs ==============
 
