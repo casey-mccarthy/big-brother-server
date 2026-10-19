@@ -30,7 +30,7 @@ The Inventory API Server is a compiled Rust service running on Windows Server th
   "drives": [
     {"model":"string","serial_number":"string|null","device_id":"string"}
   ],
-  "timestamp_utc": "ISO-8601 string"
+  "timestamp_utc": "RFC 3339 string, whole seconds, Z suffix"
 }
 ```
 
